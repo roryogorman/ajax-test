@@ -1,10 +1,11 @@
-var xhr = new XMLHttpRequest(); // This is an inbuilt objectthat JS provides to allow us to consume APIs
+/*var xhr = new XMLHttpRequest(); // This is an inbuilt objectthat JS provides to allow us to consume APIs
 var data; //we can store the data of the object in a new variable and manipulate it (adding then line 13)
 
 xhr.open("GET","https://ci-swapi.herokuapp.com/api/"); //As we want to retrieve data from the Star Wars API, we use GET method
 xhr.send(); //This sends our request
 
-xhr.onreadystatechange = function () { // This function is waiitng to see if xhr's state has changed 
+
+/*xhr.onreadystatechange = function () { // This function is waiitng to see if xhr's state has changed 
     if(this.readyState == 4 && this.status == 200) { //Ready State=4 means the operation has been completed (Google xhr readystate to see). Status of 200 means 'ok. Request succeeded'...similar to 404 error, etc 
         //document.getElementById("data").innerHTML = this.responseText; //once everything is ok, we want to go to the ID of 'data' and change its innher HTML to the response text that we get back from our xhr object
         //console.log(typeof(this.responseText)); //checks the type of data that is 'this.responseText'.
@@ -14,4 +15,43 @@ xhr.onreadystatechange = function () { // This function is waiitng to see if xhr
     }
 };
 
-console.log(data);
+xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        data = JSON.parse(this.responseText);
+        
+    }
+};
+/* setTimeout stops console.log being called long before the data is set.
+we set a callback function and then a time in milliseconds, which tells the 
+console.log to wait (e.g. 500 milliseconds) before being executed i.e. stops 'undefined' being returned
+due to being called before ready state 4 
+setTimeout(function() {
+    console.log(data);
+}, 500); */
+
+// Using callbacks without setting a time
+function getData(cb) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET","https://ci-swapi.herokuapp.com/api/");
+    xhr.send(); 
+
+    xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        cb(JSON.parse(this.responseText));   
+    }
+};
+}
+
+/*getData (function(data) {
+    console.log(data);
+});
+/* We're explicitly invoking our getData function, then checks to see if readystate is 4 & status is 200
+and only at that stage we then invoke our callback function (cb) that we passed through as our argument */
+
+/* if we dont want to write a funcion inside getData, we can write a seperate function as below */
+function printDataToConsole(data) {
+    console.log(data);
+};
+
+getData(printDataToConsole);
