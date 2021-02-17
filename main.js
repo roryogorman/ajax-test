@@ -29,8 +29,10 @@ setTimeout(function() {
     console.log(data);
 }, 500); */
 
+
+
 // Using callbacks without setting a time
-function getData(cb) {
+/*function getData(cb) {
     var xhr = new XMLHttpRequest();
 
     xhr.open("GET","https://ci-swapi.herokuapp.com/api/");
@@ -41,7 +43,7 @@ function getData(cb) {
         cb(JSON.parse(this.responseText));   
     }
 };
-}
+} */
 
 /*getData (function(data) {
     console.log(data);
@@ -50,8 +52,56 @@ function getData(cb) {
 and only at that stage we then invoke our callback function (cb) that we passed through as our argument */
 
 /* if we dont want to write a funcion inside getData, we can write a seperate function as below */
-function printDataToConsole(data) {
+/*function printDataToConsole(data) {
     console.log(data);
 };
 
-getData(printDataToConsole);
+getData(printDataToConsole); */
+const baseURL = "https://ci-swapi.herokuapp.com/api/";
+
+
+function getData(type, cb) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", baseURL + type + "/");
+    xhr.send(); 
+
+    xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        cb(JSON.parse(this.responseText));   
+    }
+};
+}
+// as 'films' does not have a Name propery, we create a table to bring in all the values
+function getTableHeaders(obj) {
+        var tableHeaders = [];
+        Object.keys(obj).forEach(function(key) {
+            tableHeaders.push(`<td>${key}</td>`);
+        });
+
+        return `<tr>${tableHeaders}</tr>`;
+}
+
+function writeToDocument(type) {
+    var tableRows = []; //to import rows of data to the table
+    var el = document.getElementById("data"); //stores the data
+    el.innerHTML = ""; // empty string - clears the returned list so you dont get it appeneded each time you click
+    getData(type, function(data) {
+        
+        data = data.results;
+        var tableHeaders = getTableHeaders(data[0]);
+        data.forEach(function(item) {
+            //el.innerHTML += "<p>" + item.name + "</p>"; .name unpacks into JSON format. += stops overwriting
+            var dataRow = [];
+            Object.keys(item).forEach(function(key) {
+                var rowData = item[key].toString(); // this converts each value of the key to a string, so we can truncate
+                var truncatedData = rowData.substring(0, 15); //truncates to 15 characters
+                dataRow.push(`<td>${truncatedData}</td>`); // item[key] (the value of the key) will push the data thats in each individual key. This pushes into dataRow
+            })
+            tableRows.push(`<tr>${dataRow}</tr>`); //this then pushes dataRow (above) into the tableRows array in line 86
+        })
+
+        el.innerHTML = `<table>${tableHeaders}${tableRows}</table>`;
+        // document.getElementById("data").innerHTML = data.results;
+    });
+}
