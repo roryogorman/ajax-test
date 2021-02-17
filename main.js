@@ -116,7 +116,7 @@ function writeToDocument(url) {
             tableRows.push(`<tr>${dataRow}</tr>`); //this then pushes dataRow (above) into the tableRows array in line 86
         })
 
-        el.innerHTML = `<table>${tableHeaders}${tableRows}</table>${pagination}`;
-        // document.getElementById("data").innerHTML = data.results;
+        el.innerHTML = `<table>${tableHeaders}${tableRows}</table>${pagination}`.replace(/,/g,""); //replace is a regular function. / signifies a regualr function. , is what we want to replace. /g looks for all instances of a comma, "" is to replace the commas in our header with a blank space
+        
     });
 }
