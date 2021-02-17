@@ -57,13 +57,13 @@ and only at that stage we then invoke our callback function (cb) that we passed 
 };
 
 getData(printDataToConsole); */
-const baseURL = "https://ci-swapi.herokuapp.com/api/";
 
 
-function getData(type, cb) {
+
+function getData(url, cb) {
     var xhr = new XMLHttpRequest();
 
-    xhr.open("GET", baseURL + type + "/");
+    xhr.open("GET", url);
     xhr.send(); 
 
     xhr.onreadystatechange = function() {
@@ -82,11 +82,26 @@ function getTableHeaders(obj) {
         return `<tr>${tableHeaders}</tr>`;
 }
 
-function writeToDocument(type) {
+function generatePaginationButtons(next, prev) {
+    if (next && prev) {
+        return `<button onclick="writeToDocument('${prev}')">Previous</button>
+                <button onclick="writeToDocument('${next}')">Next</button>`;
+    } else if (next && !prev) {
+        return `<button onclick="writeToDocument('${next}')">Next</button>`;
+    } else if (!next && prev) {
+        return `<button onclick="writeToDocument('${prev}')">Previous</button>`;
+    }
+}
+
+function writeToDocument(url) {
     var tableRows = []; //to import rows of data to the table
     var el = document.getElementById("data"); //stores the data
     el.innerHTML = ""; // empty string - clears the returned list so you dont get it appeneded each time you click
-    getData(type, function(data) {
+    getData(url, function(data) {
+        var pagination; //for pagination
+        if (data.next || data.previous) { 
+            pagination = generatePaginationButtons(data.next,data.previous);
+        }
         
         data = data.results;
         var tableHeaders = getTableHeaders(data[0]);
@@ -101,7 +116,7 @@ function writeToDocument(type) {
             tableRows.push(`<tr>${dataRow}</tr>`); //this then pushes dataRow (above) into the tableRows array in line 86
         })
 
-        el.innerHTML = `<table>${tableHeaders}${tableRows}</table>`;
+        el.innerHTML = `<table>${tableHeaders}${tableRows}</table>${pagination}`;
         // document.getElementById("data").innerHTML = data.results;
     });
 }
